@@ -3,13 +3,15 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: IDS - Intrusion Detection System API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: ids
+    description: Intrusion Detection System operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,79 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /ids/model-stats:
+    get:
+      operationId: getModelStats
+      tags: [ids]
+      summary: Get decision tree model statistics
+      description: Returns accuracy, precision, recall, F1, and confusion matrix data
+      responses:
+        "200":
+          description: Model statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelStats"
+
+  /ids/classify:
+    post:
+      operationId: classifyTraffic
+      tags: [ids]
+      summary: Classify network traffic
+      description: Classify a network traffic sample as Normal or Attack using the decision tree
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrafficSample"
+      responses:
+        "200":
+          description: Classification result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClassificationResult"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /ids/traffic-log:
+    get:
+      operationId: getTrafficLog
+      tags: [ids]
+      summary: Get recent traffic classification log
+      description: Returns recent classified traffic entries
+      responses:
+        "200":
+          description: List of traffic log entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrafficLogEntry"
+
+  /ids/feature-importance:
+    get:
+      operationId: getFeatureImportance
+      tags: [ids]
+      summary: Get feature importance from decision tree
+      description: Returns which features the decision tree considers most important
+      responses:
+        "200":
+          description: Feature importance data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FeatureImportance"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +109,208 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    ConfusionMatrixCell:
+      type: object
+      properties:
+        predicted:
+          type: string
+        actual:
+          type: string
+        count:
+          type: integer
+      required:
+        - predicted
+        - actual
+        - count
+
+    ClassMetrics:
+      type: object
+      properties:
+        label:
+          type: string
+        precision:
+          type: number
+        recall:
+          type: number
+        f1:
+          type: number
+        support:
+          type: integer
+      required:
+        - label
+        - precision
+        - recall
+        - f1
+        - support
+
+    ModelStats:
+      type: object
+      properties:
+        accuracy:
+          type: number
+        classMetrics:
+          type: array
+          items:
+            $ref: "#/components/schemas/ClassMetrics"
+        confusionMatrix:
+          type: array
+          items:
+            $ref: "#/components/schemas/ConfusionMatrixCell"
+        totalSamples:
+          type: integer
+        trainSamples:
+          type: integer
+        testSamples:
+          type: integer
+        treeDepth:
+          type: integer
+        numFeatures:
+          type: integer
+      required:
+        - accuracy
+        - classMetrics
+        - confusionMatrix
+        - totalSamples
+        - trainSamples
+        - testSamples
+        - treeDepth
+        - numFeatures
+
+    TrafficSample:
+      type: object
+      properties:
+        duration:
+          type: number
+        protocolType:
+          type: integer
+        service:
+          type: integer
+        flag:
+          type: integer
+        srcBytes:
+          type: number
+        dstBytes:
+          type: number
+        land:
+          type: integer
+        wrongFragment:
+          type: integer
+        urgent:
+          type: integer
+        hot:
+          type: integer
+        numFailedLogins:
+          type: integer
+        loggedIn:
+          type: integer
+        numCompromised:
+          type: integer
+        count:
+          type: integer
+        srvCount:
+          type: integer
+        serrorRate:
+          type: number
+        srvSerrorRate:
+          type: number
+        rerrorRate:
+          type: number
+        sameSrvRate:
+          type: number
+        diffSrvRate:
+          type: number
+      required:
+        - duration
+        - protocolType
+        - service
+        - flag
+        - srcBytes
+        - dstBytes
+        - land
+        - wrongFragment
+        - urgent
+        - hot
+        - numFailedLogins
+        - loggedIn
+        - numCompromised
+        - count
+        - srvCount
+        - serrorRate
+        - srvSerrorRate
+        - rerrorRate
+        - sameSrvRate
+        - diffSrvRate
+
+    ClassificationResult:
+      type: object
+      properties:
+        label:
+          type: string
+        confidence:
+          type: number
+        isAttack:
+          type: boolean
+        attackType:
+          type: ["string", "null"]
+        processingTimeMs:
+          type: number
+      required:
+        - label
+        - confidence
+        - isAttack
+        - attackType
+        - processingTimeMs
+
+    TrafficLogEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        timestamp:
+          type: string
+        label:
+          type: string
+        confidence:
+          type: number
+        isAttack:
+          type: boolean
+        attackType:
+          type: ["string", "null"]
+        srcBytes:
+          type: number
+        dstBytes:
+          type: number
+        duration:
+          type: number
+      required:
+        - id
+        - timestamp
+        - label
+        - confidence
+        - isAttack
+        - attackType
+        - srcBytes
+        - dstBytes
+        - duration
+
+    FeatureImportance:
+      type: object
+      properties:
+        feature:
+          type: string
+        importance:
+          type: number
+        rank:
+          type: integer
+      required:
+        - feature
+        - importance
+        - rank

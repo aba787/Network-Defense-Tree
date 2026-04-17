@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "IDS - Intrusion Detection System"
+version = "1.0.0"
+id = "artifacts/ids-dashboard"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22240
+
+[services.development]
+run = "pnpm --filter @workspace/ids-dashboard run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/ids-dashboard", "run", "build" ]
+publicDir = "artifacts/ids-dashboard/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22240"
+BASE_PATH = "/"

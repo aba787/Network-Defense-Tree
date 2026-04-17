@@ -6,6 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
+export interface ClassMetrics {
+  label: string;
+  precision: number;
+  recall: number;
+  f1: number;
+  support: number;
 }
