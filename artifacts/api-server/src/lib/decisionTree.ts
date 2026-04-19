@@ -302,32 +302,32 @@ export interface FeatureImportance {
 }
 
 export function getFeatureImportance(): FeatureImportance[] {
-  const importances: [string, number][] = [
-    ["serrorRate", 0.2812],
-    ["count", 0.1943],
-    ["srvSerrorRate", 0.1521],
-    ["srcBytes", 0.1204],
-    ["loggedIn", 0.0834],
-    ["dstBytes", 0.0612],
-    ["srvCount", 0.0421],
-    ["sameSrvRate", 0.0318],
-    ["diffSrvRate", 0.0189],
-    ["flag", 0.0143],
-    ["hot", 0.0089],
-    ["duration", 0.0074],
-    ["rerrorRate", 0.0062],
-    ["service", 0.0048],
-    ["numCompromised", 0.0037],
-    ["protocolType", 0.0029],
-    ["numFailedLogins", 0.0021],
-    ["wrongFragment", 0.0014],
-    ["land", 0.0019],
-    ["urgent", 0.0011],
-  ].sort((a, b) => b[1] - a[1]);
+  const raw: Array<{ feature: string; importance: number }> = [
+    { feature: "serrorRate", importance: 0.2812 },
+    { feature: "count", importance: 0.1943 },
+    { feature: "srvSerrorRate", importance: 0.1521 },
+    { feature: "srcBytes", importance: 0.1204 },
+    { feature: "loggedIn", importance: 0.0834 },
+    { feature: "dstBytes", importance: 0.0612 },
+    { feature: "srvCount", importance: 0.0421 },
+    { feature: "sameSrvRate", importance: 0.0318 },
+    { feature: "diffSrvRate", importance: 0.0189 },
+    { feature: "flag", importance: 0.0143 },
+    { feature: "hot", importance: 0.0089 },
+    { feature: "duration", importance: 0.0074 },
+    { feature: "rerrorRate", importance: 0.0062 },
+    { feature: "service", importance: 0.0048 },
+    { feature: "numCompromised", importance: 0.0037 },
+    { feature: "protocolType", importance: 0.0029 },
+    { feature: "numFailedLogins", importance: 0.0021 },
+    { feature: "wrongFragment", importance: 0.0014 },
+    { feature: "land", importance: 0.0019 },
+    { feature: "urgent", importance: 0.0011 },
+  ].sort((a, b) => b.importance - a.importance);
 
-  return importances.map(([feature, importance], idx) => ({
-    feature,
-    importance,
+  return raw.map((item, idx) => ({
+    feature: item.feature,
+    importance: item.importance,
     rank: idx + 1,
   }));
 }
