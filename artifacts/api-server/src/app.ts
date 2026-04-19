@@ -12,7 +12,7 @@ const pinoHttp =
 const app: Express = express();
 
 app.use(
-  (pinoHttp as Function)({
+  (pinoHttp as unknown as Function)({
     logger,
     serializers: {
       req(req: { id: string; method: string; url?: string }) {
